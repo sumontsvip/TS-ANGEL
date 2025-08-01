@@ -1,93 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta charset="UTF-8" />
   <title>TS ANGEL AI BOT</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    body { background:#0a0f1c; color:#00ffcc; font-family:'Courier New',monospace; }
-    .glass { background:rgba(0,0,0,0.2); border:1px solid #00ffcc44; border-radius:1rem; padding:1rem; box-shadow:0 0 20px #00ffcc22;}
+    body { font-family: monospace; background: #0a0f2c; color: #00f3ff; }
+    .container { display: flex; padding: 20px; gap: 30px; }
+    select, button { width: 100%; padding: 10px; margin: 5px 0; background: #000; color: #00ffcc; border: 1px solid #00f3ff; }
+    .chart-box, .form-box { flex: 1; }
+    .signal-output, .log-box { padding: 10px; border: 1px solid #00f3ff; margin-top: 10px; color: #00ffcc; }
+    .green { color: #00ff00; } .red { color: #ff4444; }
   </style>
 </head>
-<body class="min-h-screen p-4">
-  <h1 class="text-center text-3xl font-bold mb-6 text-blue-400">🚀 TS ANGEL AI BOT</h1>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Left Panel -->
-    <div class="glass">
-      <label class="block mb-2">Broker</label>
-      <select class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
-        <option>QUOTEX</option>
-      </select>
+<body>
+  <h2 style="text-align: center;">🚀 TS ANGEL AI BOT</h2>
+  <div class="container">
+    <div class="form-box">
+      <label>Broker</label>
+      <select id="broker"><option>QUOTEX</option></select>
 
-      <label class="block mb-2">Pair</label>
-      <select id="pair" onchange="updateChart()" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
-        <option value="AUDUSD">AUD/USD</option>
+      <label>Pair</label>
+      <select id="pair">
         <option value="EURUSD">EUR/USD</option>
+        <option value="AUDUSD">AUD/USD</option>
         <option value="GBPUSD">GBP/USD</option>
-        <option value="USDJPY">USD/JPY</option>
       </select>
 
-      <label class="block mb-2">Timeframe</label>
-      <select id="timeframe" onchange="updateChart()" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
-        <option>M1</option>
-        <option>M5</option>
+      <label>Timeframe</label>
+      <select id="timeframe">
+        <option value="1">M1</option>
+        <option value="5">M5</option>
       </select>
 
-      <button onclick="showPlaceholder()" class="bg-green-500 hover:bg-green-600 text-black font-bold py-2 rounded w-full mb-3">
-        🎯 Generate Signal Now
-      </button>
+      <button onclick="generateSignal()">🎯 Generate Signal Now</button>
 
-      <p id="indianTime" class="text-gray-300 text-center mb-3">⏰ Loading Indian Time...</p>
-
-      <div id="signal" class="bg-black border border-green-400 p-3 rounded text-green-300">
-        📢 Signal generation logic will run here.
-      </div>
+      <div id="clock">⏰ Indian Time: --:--:--</div>
+      <div id="signal" class="signal-output">📢 Signal will appear here...</div>
     </div>
 
-    <!-- Right Panel -->
-    <div class="glass">
-      <div id="tvchart" class="mb-4" style="height: 350px;"></div>
-      <div class="bg-black border border-blue-400 p-3 rounded text-blue-300">
-        📄 Signal logs will appear here...
-      </div>
+    <div class="chart-box">
+      <iframe id="tv_chart" style="width: 100%; height: 400px;" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_0b063&symbol=FX:AUDUSD&interval=1&hidesidetoolbar=1&symboledit=1&hideideas=1&theme=dark" frameborder="0"></iframe>
+      <div id="log" class="log-box">🗒️ Signal Logs will appear here...</div>
     </div>
   </div>
 
-  <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    function updateChart() {
-      const pair = document.getElementById('pair').value;
-      const tf = document.getElementById('timeframe').value;
-      const symbol = 'FX:' + pair;
+    let lastPrice = null;
 
-      document.getElementById('tvchart').innerHTML = '';
-      new TradingView.widget({
-        autosize: true,
-        symbol: symbol,
-        interval: tf,
-        timezone: 'Etc/UTC',
-        theme: 'dark',
-        style: '1',
-        locale: 'en',
-        container_id: 'tvchart',
-        allow_symbol_change: false
-      });
-    }
-
-    function showPlaceholder() {
-      document.getElementById('signal').innerText = '📢 Signal generation logic will run here.';
-    }
-
-    function updateIST() {
+    function updateClock() {
       const now = new Date();
-      const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-      document.getElementById('indianTime').innerText = '⏰ Indian Time: ' + ist.toLocaleTimeString();
+      const ist = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      document.getElementById("clock").innerText = "⏰ Indian Time: " + ist.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+
+    function generateSignal() {
+      const pair = document.getElementById("pair").value;
+      const tf = document.getElementById("timeframe").value;
+
+      const priceEl = document.querySelector('iframe').contentWindow.document.querySelector(".tv-symbol-price-quote__value");
+      
+      if (!priceEl) {
+        document.getElementById("signal").innerText = "⚠️ Unable to fetch price. Please wait for chart to load.";
+        return;
+      }
+
+      const currentPrice = parseFloat(priceEl.innerText);
+      let signal = "WAIT";
+
+      if (lastPrice) {
+        if (currentPrice > lastPrice) signal = "BUY 🔼";
+        else if (currentPrice < lastPrice) signal = "SELL 🔽";
+        else signal = "NO CHANGE";
+      } else {
+        signal = "WAITING FOR NEXT PRICE...";
+      }
+
+      document.getElementById("signal").innerHTML = `PAIR: ${pair}, TF: M${tf}, SIGNAL: <span class="${signal.includes('BUY') ? 'green' : 'red'}">${signal}</span>`;
+      document.getElementById("log").innerText = `Logged at ${new Date().toLocaleTimeString()} — Last: ${lastPrice}, Now: ${currentPrice}`;
+
+      lastPrice = currentPrice;
     }
 
-    setInterval(updateIST, 1000);
-    updateIST();
-    updateChart();
+    // Auto update price using MutationObserver
+    const iframe = document.getElementById("tv_chart");
+    iframe.onload = () => {
+      const check = setInterval(() => {
+        try {
+          const priceEl = iframe.contentWindow.document.querySelector(".tv-symbol-price-quote__value");
+          if (priceEl) {
+            const observer = new MutationObserver(() => {
+              const price = parseFloat(priceEl.innerText);
+              lastPrice = price;
+            });
+            observer.observe(priceEl, { childList: true, characterData: true, subtree: true });
+            clearInterval(check);
+          }
+        } catch (e) { }
+      }, 1000);
+    };
   </script>
 </body>
 </html>
