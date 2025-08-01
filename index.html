@@ -40,19 +40,18 @@
       </select>
 
       <label class="block mb-2">Timeframe</label>
-      <select class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
+      <select id="timeframe" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
         <option>M1</option>
         <option>M5</option>
       </select>
 
-      <label class="block mb-2">Start Time</label>
-      <input type="time" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded" />
-
-      <button class="bg-green-500 hover:bg-green-600 text-black font-bold py-2 px-4 rounded w-full mb-4">
+      <button onclick="generateSignal()" class="bg-green-500 hover:bg-green-600 text-black font-bold py-2 px-4 rounded w-full mb-3">
         🎯 Generate Signal Now
       </button>
 
-      <div class="bg-black border border-green-400 p-3 rounded text-green-300">
+      <p class="text-gray-300 text-center mb-3" id="indianTime">⏰ Loading Indian Time...</p>
+
+      <div class="bg-black border border-green-400 p-3 rounded text-green-300" id="signal">
         📢 Signal will appear here...
       </div>
     </div>
@@ -70,5 +69,26 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Auto Indian time display
+    function updateIST() {
+      const now = new Date();
+      const istTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      document.getElementById("indianTime").innerText =
+        "⏰ Indian Time: " + istTime.toLocaleTimeString();
+    }
+    setInterval(updateIST, 1000);
+    updateIST();
+
+    // Simple dummy signal logic
+    function generateSignal() {
+      const pair = document.getElementById("pair").value;
+      const tf = document.getElementById("timeframe").value;
+      const direction = Math.random() > 0.5 ? "BUY 🔼" : "SELL 🔽";
+
+      document.getElementById("signal").innerText = `PAIR: ${pair}, TIMEFRAME: ${tf}, SIGNAL: ${direction}`;
+    }
+  </script>
 </body>
 </html>
