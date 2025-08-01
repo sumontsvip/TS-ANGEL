@@ -29,7 +29,7 @@
       </select>
 
       <label class="block mb-2">Timeframe</label>
-      <select id="timeframe" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
+      <select id="timeframe" onchange="updateChart()" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
         <option>M1</option>
         <option>M5</option>
       </select>
@@ -41,15 +41,13 @@
       <p id="indianTime" class="text-gray-300 text-center mb-3">⏰ Loading Indian Time...</p>
 
       <div id="signal" class="bg-black border border-green-400 p-3 rounded text-green-300">
-        📢 Signal output will appear here.
+        📢 Signal generation logic will run here.
       </div>
     </div>
 
     <!-- Right Panel -->
     <div class="glass">
-      <div id="tvchart" class="mb-4" style="height: 350px;">
-        <!-- TradingView chart embed will appear here -->
-      </div>
+      <div id="tvchart" class="mb-4" style="height: 350px;"></div>
       <div class="bg-black border border-blue-400 p-3 rounded text-blue-300">
         📄 Signal logs will appear here...
       </div>
@@ -60,12 +58,14 @@
   <script>
     function updateChart() {
       const pair = document.getElementById('pair').value;
+      const tf = document.getElementById('timeframe').value;
       const symbol = 'FX:' + pair;
+
       document.getElementById('tvchart').innerHTML = '';
       new TradingView.widget({
         autosize: true,
         symbol: symbol,
-        interval: document.getElementById('timeframe').value,
+        interval: tf,
         timezone: 'Etc/UTC',
         theme: 'dark',
         style: '1',
@@ -84,6 +84,7 @@
       const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
       document.getElementById('indianTime').innerText = '⏰ Indian Time: ' + ist.toLocaleTimeString();
     }
+
     setInterval(updateIST, 1000);
     updateIST();
     updateChart();
