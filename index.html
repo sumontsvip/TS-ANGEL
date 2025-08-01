@@ -1,140 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TS ANGEL AI BOT</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     body {
-      background: #0d0d1a;
-      font-family: 'Courier New', Courier, monospace;
-      color: #0f0;
       margin: 0;
-      padding: 0;
+      font-family: 'Share Tech Mono', monospace;
+      background-color: #0a0a12;
+      color: #00ffcc;
     }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      color: #00e0ff;
+      margin: 20px 0;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
     .container {
       display: flex;
       flex-wrap: wrap;
-      padding: 20px;
-      gap: 20px;
       justify-content: center;
-    }
-    .box {
-      background: #111;
-      border: 2px solid cyan;
-      border-radius: 10px;
       padding: 20px;
-      width: 380px;
-      box-shadow: 0 0 15px cyan;
     }
-    .box h2 {
-      color: cyan;
-      text-align: center;
+
+    .form-box, .chart-box {
+      background: #111827;
+      border: 1px solid #00ffcc;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 10px;
+      box-shadow: 0 0 20px #00e0ff33;
+      flex: 1 1 400px;
+      max-width: 500px;
     }
-    select, button {
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    select, input {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
-      background: #000;
-      color: #0f0;
-      border: 1px solid cyan;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    .signal-box {
-      border: 1px dashed #0f0;
-      margin-top: 15px;
-      padding: 10px;
-      font-size: 14px;
-    }
-    .chart-box iframe {
-      width: 100%;
-      height: 400px;
       border: none;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #00ffcc;
+      font-size: 1em;
     }
-    /* Modal */
-    .modal {
-      position: fixed;
-      top: 20%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #000;
-      border: 2px solid cyan;
-      padding: 20px;
-      width: 300px;
-      text-align: center;
-      display: none;
-      box-shadow: 0 0 20px cyan;
-    }
-    .modal button {
-      background: #00ffaa;
+
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      background: linear-gradient(90deg, #00ffcc, #00e0ff);
+      border: none;
+      border-radius: 8px;
       color: #000;
       font-weight: bold;
-    }
-    .close-btn {
-      position: absolute;
-      top: 5px;
-      right: 10px;
       cursor: pointer;
-      color: red;
-      font-size: 20px;
+      box-shadow: 0 0 10px #00e0ff;
+    }
+
+    .telegram-banner {
+      background: #0e0f1a;
+      border: 2px solid #00e0ff;
+      margin-top: 20px;
+      padding: 15px;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .telegram-banner a {
+      color: #00ffcc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .tradingview-widget-container {
+      margin-top: 20px;
     }
   </style>
 </head>
+
 <body>
+  <h1>🚀 TS ANGEL AI BOT</h1>
 
-<div class="modal" id="telegramModal">
-  <span class="close-btn" onclick="document.getElementById('telegramModal').style.display='none'">&times;</span>
-  <h3>🚀 Join Our Telegram Channel</h3>
-  <p>Get latest updates & premium signals!</p>
-  <a href="https://t.me/+E0YEpUiboiYzMDc1" target="_blank">
-    <button>🔗 Join Telegram</button>
-  </a>
-</div>
+  <div class="container">
+    <div class="form-box">
+      <label>Broker</label>
+      <select>
+        <option>QUOTEX</option>
+      </select>
 
-<div class="container">
-  <div class="box">
-    <h2>⚡ TS ANGEL AI BOT</h2>
-    <select><option>TS ANGEL</option></select>
-    <select><option>RSI</option></select>
-    <select><option>EURUSD</option><option>GBPUSD</option><option>AUDUSD</option></select>
-    <select><option>M1</option><option>M5</option></select>
-    <select><option>MTG 1</option><option>MTG 2</option></select>
-    <button onclick="generateSignal()">🎯 Generate Signal Now</button>
-    <div class="signal-box" id="signalBox">
-      Signal will appear here...
+      <label>Market</label>
+      <select>
+        <option>AUDUSD (OTC)</option>
+        <option>EURUSD (OTC)</option>
+        <option>GBPUSD (OTC)</option>
+      </select>
+
+      <label>Timeframe</label>
+      <select>
+        <option>M1</option>
+        <option>M5</option>
+        <option>M15</option>
+      </select>
+
+      <label>Start Time</label>
+      <input type="time" />
+
+      <button>🧠 Generate Signal</button>
+
+      <div class="telegram-banner">
+        📢 <strong>Join Our Telegram Channel</strong><br />
+        <a href="https://t.me/+E0YEpUiboiYzMDc1" target="_blank">👉 Join Telegram</a>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <!-- TradingView Advanced Chart Widget -->
+      <div class="tradingview-widget-container" style="height:500px;">
+        <div id="tradingview_chart"></div>
+      </div>
     </div>
   </div>
 
-  <div class="box chart-box">
-    <iframe src="https://s.tradingview.com/embed-widget/symbol-overview/?locale=en#%7B%22symbols%22%3A%5B%5B%22FX%3AEURUSD%22%5D%5D%7D"></iframe>
-    <div class="signal-box" id="logBox">Signal logs will appear here...</div>
-  </div>
-</div>
-
-<script>
-  // Telegram Modal Show
-  window.onload = function () {
-    setTimeout(() => {
-      document.getElementById('telegramModal').style.display = 'block';
-    }, 3000);
-  }
-
-  // Generate Signal
-  function generateSignal() {
-    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    document.getElementById('signalBox').innerHTML = `
-      📊 STRATEGY: ⚡ TS ANGEL<br>
-      📈 INDICATOR: RSI<br>
-      💱 PAIR: EURUSD<br>
-      ⏰ TIME: ${time}<br>
-      📆 EXPIRY: M1<br>
-      📢 DIRECTION: 🟢 CALL<br>
-      🎯 MARTINGALE: MTG 1
-    `;
-    document.getElementById('logBox').innerHTML = `✅ Generated: ${time}`;
-  }
-</script>
-
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+    new TradingView.widget({
+      "container_id": "tradingview_chart",
+      "autosize": true,
+      "symbol": "OANDA:EURUSD",
+      "interval": "1",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#131722",
+      "enable_publishing": false,
+      "allow_symbol_change": true,
+      "calendar": true,
+      "support_host": "https://www.tradingview.com"
+    });
+  </script>
 </body>
 </html>
