@@ -3,159 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🚀 TS ANGEL AI BOT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <title>TS ANGEL AI BOT</title>
   <style>
     body {
+      background-color: #0b0f1a;
+      color: #00f7ff;
+      font-family: 'Courier New', monospace;
       margin: 0;
       padding: 0;
-      background-color: #0a0a11;
-      font-family: 'Share Tech Mono', monospace;
-      color: #00ffee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
     }
-
     h1 {
-      text-align: center;
-      margin-top: 20px;
+      margin-top: 30px;
       font-size: 2em;
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff;
+      text-shadow: 0 0 10px #00f7ff;
     }
-
     .container {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
+      flex-direction: column;
+      gap: 20px;
+      width: 95%;
+      max-width: 1000px;
+      margin: 30px auto;
       padding: 20px;
-    }
-
-    .left, .right {
-      background: #111827;
-      border: 2px solid #00f2ff;
+      border: 2px solid #00f7ff;
       border-radius: 12px;
-      padding: 20px;
-      width: 45%;
-      box-shadow: 0 0 20px #00ffff55;
-      margin-bottom: 30px;
     }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      color: #00ffff;
-    }
-
-    select, input[type="time"] {
+    select, button {
       width: 100%;
-      padding: 8px;
-      background: #1f2937;
-      color: #00ffee;
-      border: none;
+      padding: 10px;
+      background-color: #101626;
+      color: #00f7ff;
+      border: 1px solid #00f7ff;
       border-radius: 6px;
       font-size: 1em;
     }
-
     button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 12px;
-      background: #00f0ff;
+      background: linear-gradient(to right, #00ffc3, #00c3ff);
       color: #000;
       font-weight: bold;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      box-shadow: 0 0 10px #00ffff;
     }
-
     button:hover {
-      background: #00ffee;
+      opacity: 0.9;
     }
-
-    .telegram-box {
-      background: #0e0e1a;
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #00f2ff;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 0.95em;
-    }
-
-    .telegram-box a {
-      display: inline-block;
+    #signalBox {
       margin-top: 10px;
-      padding: 10px 20px;
-      background: #00ffee;
-      color: #000;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: bold;
+      padding: 10px;
+      border: 1px dashed #00f7ff;
+      font-size: 1em;
+      white-space: pre-line;
     }
-
     iframe {
       width: 100%;
-      height: 500px;
+      height: 400px;
       border: none;
-      border-radius: 8px;
-      margin-top: 20px;
+      border-radius: 12px;
     }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .left, .right {
-        width: 90%;
-      }
+    .time-text {
+      font-size: 0.9em;
+      color: #aaa;
+      margin-top: -10px;
     }
   </style>
 </head>
 <body>
   <h1>🚀 TS ANGEL AI BOT</h1>
+  <div class="container">
+    <label>Broker</label>
+    <select>
+      <option>QUOTEX</option>
+    </select>
+
+    <label>Market</label>
+    <select id="market">
+      <option>AUDUSD (OTC)</option>
+      <option>EURUSD</option>
+      <option>GBPUSD</option>
+    </select>
+
+    <label>Timeframe</label>
+    <select id="timeframe" onchange="updateChart()">
+      <option value="1m">M1</option>
+      <option value="5m">M5</option>
+    </select>
+
+    <button onclick="generateSignal()">🧠 Generate Signal</button>
+
+    <div class="time-text" id="timeText"></div>
+    <div id="signalBox">Signal will appear here...</div>
+  </div>
 
   <div class="container">
-    <!-- Left Side Panel -->
-    <div class="left">
-      <label>Broker</label>
-      <select>
-        <option>QUOTEX</option>
-      </select>
-
-      <label>Market</label>
-      <select>
-        <option>AUDUSD (OTC)</option>
-        <option>EURUSD</option>
-        <option>GBPUSD</option>
-      </select>
-
-      <label>Timeframe</label>
-      <select>
-        <option>M1</option>
-        <option>M5</option>
-        <option>M15</option>
-        <option>M30</option>
-        <option>H1</option>
-      </select>
-
-      <label>Start Time</label>
-      <input type="time" />
-
-      <button>🧠 Generate Signal</button>
-
-      <div class="telegram-box">
-        📢 <strong>Join Our Telegram Channel</strong><br />
-        👉 <a href="https://t.me/+E0YEpUiboiYzMDc1" target="_blank">Join Telegram</a>
-      </div>
-    </div>
-
-    <!-- Right Side Panel -->
-    <div class="right">
-      <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?symbol=FX:AUDUSD&interval=1&theme=dark" frameborder="0"></iframe>
-    </div>
+    <iframe id="tvChart" src="https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=1&theme=dark&style=1&timezone=Asia/Kolkata&hide_top_toolbar=true"></iframe>
   </div>
+
+  <script>
+    function updateChart() {
+      const tf = document.getElementById('timeframe').value;
+      const chart = document.getElementById('tvChart');
+      const url = `https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=${tf.replace('m', '')}&theme=dark&style=1&timezone=Asia/Kolkata&hide_top_toolbar=true`;
+      chart.src = url;
+    }
+
+    function generateSignal() {
+      const market = document.getElementById('market').value;
+      const tf = document.getElementById('timeframe').value;
+      const now = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+      const direction = Math.random() > 0.5 ? 'CALL' : 'PUT';
+
+      const msg = `STRATEGY: TS ANGEL\nPAIR: ${market}\nTIME: ${now}\nEXPIRY: ${tf}\nDIRECTION: ${direction}`;
+      document.getElementById('signalBox').innerText = msg;
+    }
+
+    function updateIndianTime() {
+      const now = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' });
+      document.getElementById('timeText').innerText = `⏰ Indian Time: ${now}`;
+    }
+    setInterval(updateIndianTime, 1000);
+    updateIndianTime();
+  </script>
 </body>
 </html>
