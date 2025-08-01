@@ -1,28 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>TS ANGEL AI BOT</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #0a0f1c;
-      color: #00ffcc;
-      font-family: 'Courier New', Courier, monospace;
-    }
-    .glass {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid #00ffcc44;
-      border-radius: 1rem;
-      padding: 1rem;
-      box-shadow: 0 0 20px #00ffcc22;
-    }
+    body { background:#0a0f1c; color:#00ffcc; font-family:'Courier New',monospace; }
+    .glass { background:rgba(0,0,0,0.2); border:1px solid #00ffcc44; border-radius:1rem; padding:1rem; box-shadow:0 0 20px #00ffcc22;}
   </style>
 </head>
 <body class="min-h-screen p-4">
   <h1 class="text-center text-3xl font-bold mb-6 text-blue-400">🚀 TS ANGEL AI BOT</h1>
-
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <!-- Left Panel -->
     <div class="glass">
@@ -32,7 +21,7 @@
       </select>
 
       <label class="block mb-2">Pair</label>
-      <select id="pair" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
+      <select id="pair" onchange="updateChart()" class="w-full mb-4 p-2 bg-black border border-cyan-400 rounded">
         <option value="AUDUSD">AUD/USD</option>
         <option value="EURUSD">EUR/USD</option>
         <option value="GBPUSD">GBP/USD</option>
@@ -45,50 +34,59 @@
         <option>M5</option>
       </select>
 
-      <button onclick="generateSignal()" class="bg-green-500 hover:bg-green-600 text-black font-bold py-2 px-4 rounded w-full mb-3">
+      <button onclick="showPlaceholder()" class="bg-green-500 hover:bg-green-600 text-black font-bold py-2 rounded w-full mb-3">
         🎯 Generate Signal Now
       </button>
 
-      <p class="text-gray-300 text-center mb-3" id="indianTime">⏰ Loading Indian Time...</p>
+      <p id="indianTime" class="text-gray-300 text-center mb-3">⏰ Loading Indian Time...</p>
 
-      <div class="bg-black border border-green-400 p-3 rounded text-green-300" id="signal">
-        📢 Signal will appear here...
+      <div id="signal" class="bg-black border border-green-400 p-3 rounded text-green-300">
+        📢 Signal output will appear here.
       </div>
     </div>
 
     <!-- Right Panel -->
     <div class="glass">
-      <div id="tvchart" class="mb-4">
-        <!-- TradingView chart embed -->
-        <iframe id="chartFrame" src="https://s.tradingview.com/widgetembed/?symbol=FX:AUDUSD&interval=1&theme=dark"
-                width="100%" height="350" frameborder="0" allowtransparency="true"></iframe>
+      <div id="tvchart" class="mb-4" style="height: 350px;">
+        <!-- TradingView chart embed will appear here -->
       </div>
-
       <div class="bg-black border border-blue-400 p-3 rounded text-blue-300">
-        📄 Signal Logs will appear here...
+        📄 Signal logs will appear here...
       </div>
     </div>
   </div>
 
+  <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    // Auto Indian time display
+    function updateChart() {
+      const pair = document.getElementById('pair').value;
+      const symbol = 'FX:' + pair;
+      document.getElementById('tvchart').innerHTML = '';
+      new TradingView.widget({
+        autosize: true,
+        symbol: symbol,
+        interval: document.getElementById('timeframe').value,
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        container_id: 'tvchart',
+        allow_symbol_change: false
+      });
+    }
+
+    function showPlaceholder() {
+      document.getElementById('signal').innerText = '📢 Signal generation logic will run here.';
+    }
+
     function updateIST() {
       const now = new Date();
-      const istTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-      document.getElementById("indianTime").innerText =
-        "⏰ Indian Time: " + istTime.toLocaleTimeString();
+      const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      document.getElementById('indianTime').innerText = '⏰ Indian Time: ' + ist.toLocaleTimeString();
     }
     setInterval(updateIST, 1000);
     updateIST();
-
-    // Simple dummy signal logic
-    function generateSignal() {
-      const pair = document.getElementById("pair").value;
-      const tf = document.getElementById("timeframe").value;
-      const direction = Math.random() > 0.5 ? "BUY 🔼" : "SELL 🔽";
-
-      document.getElementById("signal").innerText = `PAIR: ${pair}, TIMEFRAME: ${tf}, SIGNAL: ${direction}`;
-    }
+    updateChart();
   </script>
 </body>
 </html>
