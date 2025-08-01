@@ -3,98 +3,123 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TS ANGEL AI BOT</title>
+  <title>🚀 TS ANGEL AI BOT</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
+      padding: 0;
+      background-color: #0a0a11;
       font-family: 'Share Tech Mono', monospace;
-      background-color: #0a0a12;
-      color: #00ffcc;
+      color: #00ffee;
     }
 
     h1 {
       text-align: center;
+      margin-top: 20px;
       font-size: 2em;
-      color: #00e0ff;
-      margin: 20px 0;
+      color: #00ffff;
       text-shadow: 0 0 10px #00ffff;
     }
 
     .container {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-around;
       padding: 20px;
     }
 
-    .form-box, .chart-box {
+    .left, .right {
       background: #111827;
-      border: 1px solid #00ffcc;
+      border: 2px solid #00f2ff;
       border-radius: 12px;
       padding: 20px;
-      margin: 10px;
-      box-shadow: 0 0 20px #00e0ff33;
-      flex: 1 1 400px;
-      max-width: 500px;
+      width: 45%;
+      box-shadow: 0 0 20px #00ffff55;
+      margin-bottom: 30px;
     }
 
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 15px;
       margin-bottom: 5px;
+      color: #00ffff;
     }
 
-    select, input {
+    select, input[type="time"] {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
+      background: #1f2937;
+      color: #00ffee;
       border: none;
       border-radius: 6px;
-      background: #1f2937;
-      color: #00ffcc;
       font-size: 1em;
     }
 
     button {
-      margin-top: 15px;
       width: 100%;
+      margin-top: 20px;
       padding: 12px;
-      font-size: 1em;
-      background: linear-gradient(90deg, #00ffcc, #00e0ff);
-      border: none;
-      border-radius: 8px;
+      background: #00f0ff;
       color: #000;
       font-weight: bold;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      box-shadow: 0 0 10px #00e0ff;
+      box-shadow: 0 0 10px #00ffff;
     }
 
-    .telegram-banner {
-      background: #0e0f1a;
-      border: 2px solid #00e0ff;
+    button:hover {
+      background: #00ffee;
+    }
+
+    .telegram-box {
+      background: #0e0e1a;
       margin-top: 20px;
       padding: 15px;
-      text-align: center;
+      border: 1px solid #00f2ff;
       border-radius: 8px;
+      text-align: center;
+      font-size: 0.95em;
     }
 
-    .telegram-banner a {
-      color: #00ffcc;
+    .telegram-box a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #00ffee;
+      color: #000;
+      border-radius: 5px;
       text-decoration: none;
       font-weight: bold;
     }
 
-    .tradingview-widget-container {
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 8px;
       margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .left, .right {
+        width: 90%;
+      }
     }
   </style>
 </head>
-
 <body>
   <h1>🚀 TS ANGEL AI BOT</h1>
 
   <div class="container">
-    <div class="form-box">
+    <!-- Left Side Panel -->
+    <div class="left">
       <label>Broker</label>
       <select>
         <option>QUOTEX</option>
@@ -103,8 +128,8 @@
       <label>Market</label>
       <select>
         <option>AUDUSD (OTC)</option>
-        <option>EURUSD (OTC)</option>
-        <option>GBPUSD (OTC)</option>
+        <option>EURUSD</option>
+        <option>GBPUSD</option>
       </select>
 
       <label>Timeframe</label>
@@ -112,6 +137,8 @@
         <option>M1</option>
         <option>M5</option>
         <option>M15</option>
+        <option>M30</option>
+        <option>H1</option>
       </select>
 
       <label>Start Time</label>
@@ -119,37 +146,16 @@
 
       <button>🧠 Generate Signal</button>
 
-      <div class="telegram-banner">
+      <div class="telegram-box">
         📢 <strong>Join Our Telegram Channel</strong><br />
-        <a href="https://t.me/+E0YEpUiboiYzMDc1" target="_blank">👉 Join Telegram</a>
+        👉 <a href="https://t.me/+E0YEpUiboiYzMDc1" target="_blank">Join Telegram</a>
       </div>
     </div>
 
-    <div class="chart-box">
-      <!-- TradingView Advanced Chart Widget -->
-      <div class="tradingview-widget-container" style="height:500px;">
-        <div id="tradingview_chart"></div>
-      </div>
+    <!-- Right Side Panel -->
+    <div class="right">
+      <iframe src="https://s.tradingview.com/embed-widget/mini-symbol-overview/?symbol=FX:AUDUSD&interval=1&theme=dark" frameborder="0"></iframe>
     </div>
   </div>
-
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-  <script type="text/javascript">
-    new TradingView.widget({
-      "container_id": "tradingview_chart",
-      "autosize": true,
-      "symbol": "OANDA:EURUSD",
-      "interval": "1",
-      "timezone": "Etc/UTC",
-      "theme": "dark",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#131722",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "calendar": true,
-      "support_host": "https://www.tradingview.com"
-    });
-  </script>
 </body>
 </html>
