@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TS ANGEL AI BOT</title>
+  <script>
+    function generateSignal() {
+      const market = document.getElementById("market").value;
+      const timeframe = document.getElementById("timeframe").value;
+      const startTime = document.getElementById("startTime").value;
+
+      const signalOutput = `✅ SIGNAL:\nBroker: Quotex\nDirection: BUY\nMarket: ${market}\nTimeframe: ${timeframe}\nEntry Time: ${startTime}\nNote: Use proper risk management.`;
+
+      document.getElementById("signalBox").innerText = signalOutput;
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .glow {
+      text-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+  <h1 class="text-3xl md:text-5xl font-bold mb-6 glow">TS ANGEL AI BOT</h1>
+
+  <div class="bg-gray-900 p-6 rounded-2xl shadow-lg w-full max-w-md">
+    <div class="mb-4">
+      <label class="block mb-1 text-sm">Broker</label>
+      <input disabled value="QUOTEX" class="w-full p-2 bg-gray-800 border border-gray-600 rounded" />
+    </div>
+
+    <div class="mb-4">
+      <label class="block mb-1 text-sm">Market</label>
+      <select id="market" class="w-full p-2 bg-gray-800 border border-gray-600 rounded">
+        <option>AUD/USD (OTC)</option>
+        <option>EUR/USD (OTC)</option>
+        <option>GBP/JPY (OTC)</option>
+        <option>USD/JPY (OTC)</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="block mb-1 text-sm">Timeframe</label>
+      <select id="timeframe" class="w-full p-2 bg-gray-800 border border-gray-600 rounded">
+        <option>M1</option>
+        <option>M5</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="block mb-1 text-sm">Start Time</label>
+      <input id="startTime" type="time" class="w-full p-2 bg-gray-800 border border-gray-600 rounded" />
+    </div>
+
+    <button onclick="generateSignal()" class="w-full bg-green-500 hover:bg-green-600 text-black font-bold py-2 px-4 rounded">
+      GENERATE SIGNAL
+    </button>
+
+    <pre id="signalBox" class="mt-4 bg-black p-4 rounded text-green-400 text-sm"></pre>
+
+    <a href="https://t.me/+jJ7xcUuiOUtjMTll" target="_blank" class="block mt-6 text-center bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+      Join our Telegram Channel
+    </a>
+  </div>
+</body>
+</html>
