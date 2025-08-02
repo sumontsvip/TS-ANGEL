@@ -3,129 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TS ANGEL AI BOT</title>
+  <title>TS Angel Quotex Chart</title>
   <style>
-    body {
-      background-color: #0b0f1a;
-      color: #00f7ff;
-      font-family: 'Courier New', monospace;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-    }
-    h1 {
-      margin-top: 30px;
-      font-size: 2em;
-      text-shadow: 0 0 10px #00f7ff;
-    }
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 95%;
-      max-width: 1000px;
-      margin: 30px auto;
-      padding: 20px;
-      border: 2px solid #00f7ff;
-      border-radius: 12px;
-    }
-    select, button {
-      width: 100%;
+    body { font-family: Arial; padding: 20px; background: #111; color: white; }
+    select, iframe { margin-top: 20px; }
+    select {
       padding: 10px;
-      background-color: #101626;
-      color: #00f7ff;
-      border: 1px solid #00f7ff;
+      font-size: 16px;
       border-radius: 6px;
-      font-size: 1em;
-    }
-    button {
-      background: linear-gradient(to right, #00ffc3, #00c3ff);
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-    #signalBox {
-      margin-top: 10px;
-      padding: 10px;
-      border: 1px dashed #00f7ff;
-      font-size: 1em;
-      white-space: pre-line;
     }
     iframe {
       width: 100%;
-      height: 400px;
+      height: 500px;
       border: none;
-      border-radius: 12px;
-    }
-    .time-text {
-      font-size: 0.9em;
-      color: #aaa;
-      margin-top: -10px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>🚀 TS ANGEL AI BOT</h1>
-  <div class="container">
-    <label>Broker</label>
-    <select>
-      <option>QUOTEX</option>
-    </select>
+  <h2>TS Angel Live Market View</h2>
+  <label for="pairSelect">Choose Pair:</label>
+  <select id="pairSelect">
+    <option value="EURUSD">EURUSD</option>
+    <option value="GBPUSD">GBPUSD</option>
+    <option value="USDJPY">USDJPY</option>
+    <option value="AUDUSD">AUDUSD</option>
+    <option value="NZDUSD">NZDUSD</option>
+    <option value="USDCHF">USDCHF</option>
+    <option value="USDCAD">USDCAD</option>
+  </select>
 
-    <label>Market</label>
-    <select id="market">
-      <option>AUDUSD (OTC)</option>
-      <option>EURUSD</option>
-      <option>GBPUSD</option>
-    </select>
-
-    <label>Timeframe</label>
-    <select id="timeframe" onchange="updateChart()">
-      <option value="1m">M1</option>
-      <option value="5m">M5</option>
-    </select>
-
-    <button onclick="generateSignal()">🧠 Generate Signal</button>
-
-    <div class="time-text" id="timeText"></div>
-    <div id="signalBox">Signal will appear here...</div>
-  </div>
-
-  <div class="container">
-    <iframe id="tvChart" src="https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=1&theme=dark&style=1&timezone=Asia/Kolkata&hide_top_toolbar=true"></iframe>
-  </div>
+  <iframe id="tvChart" src="https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=1&theme=dark&style=1&locale=en"></iframe>
 
   <script>
-    function updateChart() {
-      const tf = document.getElementById('timeframe').value;
-      const chart = document.getElementById('tvChart');
-      const url = `https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=${tf.replace('m', '')}&theme=dark&style=1&timezone=Asia/Kolkata&hide_top_toolbar=true`;
-      chart.src = url;
-    }
+    const pairSelect = document.getElementById("pairSelect");
+    const tvChart = document.getElementById("tvChart");
 
-    function generateSignal() {
-      const market = document.getElementById('market').value;
-      const tf = document.getElementById('timeframe').value;
-      const now = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
-      const direction = Math.random() > 0.5 ? 'CALL' : 'PUT';
-
-      const msg = `STRATEGY: TS ANGEL\nPAIR: ${market}\nTIME: ${now}\nEXPIRY: ${tf}\nDIRECTION: ${direction}`;
-      document.getElementById('signalBox').innerText = msg;
-    }
-
-    function updateIndianTime() {
-      const now = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' });
-      document.getElementById('timeText').innerText = `⏰ Indian Time: ${now}`;
-    }
-    setInterval(updateIndianTime, 1000);
-    updateIndianTime();
+    pairSelect.addEventListener("change", function () {
+      const symbol = this.value;
+      tvChart.src = `https://s.tradingview.com/widgetembed/?symbol=FX:${symbol}&interval=1&theme=dark&style=1&locale=en`;
+    });
   </script>
 </body>
 </html>
