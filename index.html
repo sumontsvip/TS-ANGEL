@@ -98,12 +98,20 @@
     });
 
     function generateSignal() {
-      const pair = pairSelect.value;
-      const direction = Math.random() > 0.5 ? "BUY" : "SELL";
-      const now = new Date();
-      const time = now.toLocaleTimeString("en-IN", { hour12: true });
-      signalBox.innerHTML = `📈 Signal for <b>${pair}</b>: <span style='color:yellow'>${direction}</span> at <span style='color:#ffcc00'>${time}</span>`;
-    }
+  const day = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+  if (day === 0 || day === 6) {
+    signalBox.innerHTML = "⚠️ Market is closed. No signals available today.";
+    return;
+  }
+
+  const pair = pairSelect.value;
+  const direction = Math.random() > 0.5 ? "BUY" : "SELL";
+  const now = new Date();
+  const time = now.toLocaleTimeString("en-IN", { hour12: true });
+
+  signalBox.innerHTML = `📈 Signal for <b>${pair}</b>: <span style='color:yellow'>${direction}</span> at <span style='color:#ffcc00'>${time}</span>`;
+}
+
 
     function updateTime() {
       const now = new Date();
