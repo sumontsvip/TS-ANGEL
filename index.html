@@ -5,19 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TS Angel Quotex Panel</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #111; color: white; }
-    h2 { margin-bottom: 10px; }
-    label, select, button { font-size: 16px; margin-top: 10px; display: block; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f0f0f;
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+    }
+    h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #00f0ff;
+    }
     select, button {
-      padding: 10px;
-      border-radius: 6px;
+      margin-top: 15px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
       border: none;
-      background: #222;
+      width: 90%;
+      max-width: 400px;
+      background-color: #1f1f1f;
+      color: #ffffff;
+    }
+    button {
+      background-color: #007bff;
       color: white;
-      width: 100%;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
     }
     button:hover {
-      background: #333;
+      background-color: #0056b3;
       cursor: pointer;
     }
     iframe {
@@ -25,10 +43,24 @@
       height: 500px;
       border: none;
       margin-top: 20px;
+      border-radius: 12px;
     }
     .time-display {
       margin-top: 15px;
       font-size: 18px;
+      color: #ffcc00;
+    }
+    #signalBox {
+      margin-top: 20px;
+      font-size: 22px;
+      color: #00ff7f;
+      background-color: #1c1c1c;
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 0 15px #00ff7f66;
     }
   </style>
 </head>
@@ -48,9 +80,9 @@
 
   <div class="time-display" id="timeDisplay"></div>
 
-  <button onclick="generateSignal()">Generate Signal</button>
+  <button onclick="generateSignal()">🔮 Generate Signal</button>
 
-  <div id="signalBox" style="margin-top:20px;font-size:20px;color:#0f0;"></div>
+  <div id="signalBox"></div>
 
   <iframe id="tvChart" src="https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=1&theme=dark&style=1&locale=en"></iframe>
 
@@ -70,7 +102,7 @@
       const direction = Math.random() > 0.5 ? "BUY" : "SELL";
       const now = new Date();
       const time = now.toLocaleTimeString("en-IN", { hour12: true });
-      signalBox.innerHTML = `Signal: <b>${pair}</b> → <span style='color:yellow'>${direction}</span> at ${time}`;
+      signalBox.innerHTML = `📈 Signal for <b>${pair}</b>: <span style='color:yellow'>${direction}</span> at <span style='color:#ffcc00'>${time}</span>`;
     }
 
     function updateTime() {
