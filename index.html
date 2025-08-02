@@ -3,25 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TS Angel Quotex Chart</title>
+  <title>TS Angel Quotex Panel</title>
   <style>
     body { font-family: Arial; padding: 20px; background: #111; color: white; }
-    select, iframe { margin-top: 20px; }
-    select {
+    h2 { margin-bottom: 10px; }
+    label, select, button { font-size: 16px; margin-top: 10px; display: block; }
+    select, button {
       padding: 10px;
-      font-size: 16px;
       border-radius: 6px;
+      border: none;
+      background: #222;
+      color: white;
+      width: 100%;
+    }
+    button:hover {
+      background: #333;
+      cursor: pointer;
     }
     iframe {
       width: 100%;
       height: 500px;
       border: none;
-      margin-top: 10px;
+      margin-top: 20px;
+    }
+    .time-display {
+      margin-top: 15px;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <h2>TS Angel Live Market View</h2>
+  <h2>TS Angel - Live Quotex Signal Panel</h2>
+
   <label for="pairSelect">Choose Pair:</label>
   <select id="pairSelect">
     <option value="EURUSD">EURUSD</option>
@@ -33,16 +46,41 @@
     <option value="USDCAD">USDCAD</option>
   </select>
 
+  <div class="time-display" id="timeDisplay"></div>
+
+  <button onclick="generateSignal()">Generate Signal</button>
+
+  <div id="signalBox" style="margin-top:20px;font-size:20px;color:#0f0;"></div>
+
   <iframe id="tvChart" src="https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=1&theme=dark&style=1&locale=en"></iframe>
 
   <script>
     const pairSelect = document.getElementById("pairSelect");
     const tvChart = document.getElementById("tvChart");
+    const signalBox = document.getElementById("signalBox");
+    const timeDisplay = document.getElementById("timeDisplay");
 
     pairSelect.addEventListener("change", function () {
       const symbol = this.value;
       tvChart.src = `https://s.tradingview.com/widgetembed/?symbol=FX:${symbol}&interval=1&theme=dark&style=1&locale=en`;
     });
+
+    function generateSignal() {
+      const pair = pairSelect.value;
+      const direction = Math.random() > 0.5 ? "BUY" : "SELL";
+      const now = new Date();
+      const time = now.toLocaleTimeString("en-IN", { hour12: true });
+      signalBox.innerHTML = `Signal: <b>${pair}</b> → <span style='color:yellow'>${direction}</span> at ${time}`;
+    }
+
+    function updateTime() {
+      const now = new Date();
+      const time = now.toLocaleTimeString("en-IN", { hour12: true });
+      timeDisplay.textContent = `Current Indian Time: ${time}`;
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
   </script>
 </body>
 </html>
