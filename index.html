@@ -1,228 +1,131 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - ULTRA MAX</title>
+<title>TS QUOTEX AI - DOMINATION</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 
 body{
-background:#0f0f0f;
-font-family:Arial;
+background:linear-gradient(135deg,#0f0f0f,#000000);
 color:white;
+font-family:Arial;
 text-align:center;
 }
 
-h2{
-background:#0088cc;
-padding:10px;
-border-radius:8px;
+h1{
+color:#00ffff;
+text-shadow:0 0 15px cyan;
 }
 
-select,input,button{
-padding:8px;
-margin:5px;
-border-radius:6px;
-border:none;
+.card{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,255,255,0.1);
+padding:20px;
+margin:15px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
 button{
-background:#0088cc;
-color:white;
+background:#00ffff;
+border:none;
+padding:10px 20px;
+border-radius:8px;
 cursor:pointer;
+font-weight:bold;
 }
 
-.box{
-background:#1a1a1a;
-padding:15px;
-margin-top:10px;
-border-radius:10px;
+input{
+padding:8px;
+border-radius:6px;
+border:none;
+margin:5px;
 }
 
 .buy{color:lime;font-size:22px;}
 .sell{color:red;font-size:22px;}
-.win{color:gold;}
-.clock{color:cyan;}
-
-table{
-width:100%;
-margin-top:10px;
-border-collapse:collapse;
-font-size:12px;
-}
-
-th,td{
-border:1px solid #333;
-padding:5px;
-}
-
-.loading{
-color:orange;
-font-weight:bold;
-}
+.locked{color:red;font-weight:bold;}
+.premium{color:gold;}
 
 </style>
 </head>
-
 <body>
 
-<h2>TS QUOTEX AI - ULTRA MAX</h2>
+<h1>TS QUOTEX AI - DOMINATION</h1>
 
-<div class="clock" id="clock"></div>
-
-<select id="pair">
-<option>USD BRL OTC</option>
-<option>USD PKR OTC</option>
-<option>EUR USD</option>
-<option>EUR GBP</option>
-<option>EUR JPY</option>
-</select>
-
-<select id="tf">
-<option>1 Minute</option>
-<option>5 Minute</option>
-</select>
-
-<br>
-
+<div class="card">
 <input type="number" id="capital" placeholder="Enter Capital">
-
-<br>
-
-<button onclick="generateSignal()">Generate Signal</button>
-<button onclick="toggleAuto()">Auto Mode</button>
-
-<div class="box" id="result"></div>
-
-<h3>Daily Profit Tracker</h3>
-<div class="box">
-Total Profit Today: $<span id="dailyProfit">0</span>
+<button onclick="getSignal()">Get Server Signal</button>
+<div id="signalBox"></div>
 </div>
 
-<h3>Compounding Calculator</h3>
-<div class="box">
-<input type="number" id="compoundDays" placeholder="Days">
-<button onclick="calculateCompound()">Calculate</button>
-<div id="compoundResult"></div>
+<div class="card">
+<h3>Withdrawal Tracker</h3>
+<input type="number" id="deposit" placeholder="Deposit">
+<input type="number" id="withdraw" placeholder="Withdraw">
+<button onclick="updateBalance()">Update</button>
+<div>Balance: $<span id="balance">0</span></div>
 </div>
 
-<h3>Signal History</h3>
-<table>
-<thead>
-<tr>
-<th>Time</th>
-<th>Pair</th>
-<th>Signal</th>
-<th>TF</th>
-</tr>
-</thead>
-<tbody id="history"></tbody>
-</table>
+<div class="card">
+<h3>Premium Zone</h3>
+<input type="password" id="key" placeholder="Enter Premium Key">
+<button onclick="unlock()">Unlock</button>
+<div id="premiumStatus" class="locked">LOCKED</div>
+</div>
 
 <script>
 
-let autoInterval=null;
-let dailyProfit=0;
+let balance = 0;
+let premium = false;
 
-function updateClock(){
-let now=new Date();
-document.getElementById("clock").innerHTML=
-"Market Time: "+now.toLocaleTimeString();
-}
-setInterval(updateClock,1000);
+async function getSignal(){
 
-function smartDirection(){
-let r=Math.random();
-if(r>0.6) return "BUY";
-if(r<0.4) return "SELL";
-return Math.random()>0.5?"BUY":"SELL";
-}
+const res = await fetch('/api/signal');
+const data = await res.json();
 
-function generateSignal(){
+const capital = parseFloat(document.getElementById("capital").value);
+if(!capital){ alert("Enter Capital"); return;}
 
-let pair=document.getElementById("pair").value;
-let tf=document.getElementById("tf").value;
-let capital=parseFloat(document.getElementById("capital").value);
+const risk = (capital*0.02).toFixed(2);
+const target = (capital*0.03).toFixed(2);
 
-if(!capital){
-alert("Enter Capital First");
-return;
-}
-
-let result=document.getElementById("result");
-
-result.innerHTML="<div class='loading'>AI Analyzing Market...</div>";
-
-setTimeout(function(){
-
-let direction=smartDirection();
-let risk=(capital*0.02).toFixed(2);
-let target=(capital*0.03).toFixed(2);
-let winRate=(75+Math.floor(Math.random()*15))+"%";
-
-dailyProfit+=parseFloat(target);
-document.getElementById("dailyProfit").innerHTML=dailyProfit.toFixed(2);
-
-result.innerHTML=`
-<div class="${direction=="BUY"?"buy":"sell"}">Signal: ${direction}</div>
-<div>${pair}</div>
-<div>${tf}</div>
-<div>Risk (2%): $${risk}</div>
-<div>Target (3%): $${target}</div>
-<div class="win">Win Rate: ${winRate}</div>
-<div>${new Date().toLocaleTimeString()}</div>
+document.getElementById("signalBox").innerHTML = `
+<div class="${data.signal=="BUY"?"buy":"sell"}">
+${data.signal}
+</div>
+<div>${data.pair}</div>
+<div>Win Rate: ${data.winRate}</div>
+<div>Risk: $${risk}</div>
+<div>Target: $${target}</div>
 `;
 
-let history=document.getElementById("history");
-history.innerHTML=`
-<tr>
-<td>${new Date().toLocaleTimeString()}</td>
-<td>${pair}</td>
-<td>${direction}</td>
-<td>${tf}</td>
-</tr>
-`+history.innerHTML;
+}
 
-},2000);
+function updateBalance(){
+
+const dep = parseFloat(document.getElementById("deposit").value)||0;
+const wit = parseFloat(document.getElementById("withdraw").value)||0;
+
+balance += dep;
+balance -= wit;
+
+document.getElementById("balance").innerText = balance.toFixed(2);
 
 }
 
-function toggleAuto(){
+function unlock(){
 
-if(autoInterval){
-clearInterval(autoInterval);
-autoInterval=null;
-alert("Auto Mode Stopped");
-return;
+const key = document.getElementById("key").value;
+
+if(key === "TS-DOMINATION-2026"){
+premium = true;
+document.getElementById("premiumStatus").innerHTML =
+"<span class='premium'>PREMIUM ACTIVE</span>";
+}else{
+alert("Wrong Key");
 }
-
-generateSignal();
-
-autoInterval=setInterval(function(){
-generateSignal();
-},30000);
-
-alert("Auto Mode Started");
-
-}
-
-function calculateCompound(){
-
-let capital=parseFloat(document.getElementById("capital").value);
-let days=parseInt(document.getElementById("compoundDays").value);
-
-if(!capital || !days){
-alert("Enter Capital and Days");
-return;
-}
-
-let result=capital;
-
-for(let i=0;i<days;i++){
-result+=result*0.03;
-}
-
-document.getElementById("compoundResult").innerHTML=
-"After "+days+" Days: $"+result.toFixed(2);
 
 }
 
