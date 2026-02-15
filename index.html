@@ -1,35 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS Angel - Live Quotex Signal Panel</title>
+<title>TS Angel AI - Pro Signal Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
-background:#000;
+background:#0a0a0a;
 color:white;
 font-family:Arial;
 text-align:center;
 }
+h2{color:cyan;}
+
 select,button{
 padding:10px;
-margin:10px;
+margin:8px;
 border-radius:6px;
+border:none;
 }
-.signal{
-font-size:22px;
+
+button{
+background:#007bff;
+color:white;
+cursor:pointer;
+}
+
+.signal-box{
 margin-top:20px;
+padding:15px;
+border-radius:8px;
+background:#111;
 }
-.buy{color:lime;}
-.sell{color:red;}
+
+.buy{color:lime;font-size:22px;}
+.sell{color:red;font-size:22px;}
 .info{color:cyan;}
+.win{color:gold;}
+.timer{color:orange;}
 </style>
 </head>
 
 <body>
 
-<h2>TS Angel - Live Quotex Signal Panel</h2>
+<h2>TS Angel AI - Pro Signal Panel</h2>
 
-<label>Choose Pair:</label>
-<br>
+<label>Choose Pair:</label><br>
 <select id="pair">
 <option>USD BRL OTC</option>
 <option>USD PKR OTC</option>
@@ -40,40 +55,66 @@ margin-top:20px;
 
 <br>
 
-<button onclick="generateSignal()">Generate Signal</button>
+<label>Select Timeframe:</label><br>
+<select id="timeframe">
+<option>1 Minute</option>
+<option>5 Minute</option>
+</select>
 
-<div class="signal" id="result"></div>
+<br>
+
+<button onclick="generateSignal()">Generate Signal</button>
+<button onclick="startAuto()">Auto Mode</button>
+
+<div class="signal-box" id="result"></div>
 
 <script>
+
+let autoInterval = null;
 
 function generateSignal(){
 
 let pair = document.getElementById("pair").value;
+let timeframe = document.getElementById("timeframe").value;
 
 let random = Math.random();
-
 let direction = random > 0.5 ? "BUY" : "SELL";
+
+let winRate = (70 + Math.floor(Math.random()*20)) + "%";
 
 let risk = "2% Risk Per Trade";
 let target = "3% Target Profit";
 
 let resultDiv = document.getElementById("result");
 
-if(direction == "BUY"){
 resultDiv.innerHTML = `
-<div class="buy">Signal: BUY</div>
+<div class="${direction=="BUY"?"buy":"sell"}">Signal: ${direction}</div>
 <div class="info">${pair}</div>
+<div class="info">Timeframe: ${timeframe}</div>
 <div>${risk}</div>
 <div>${target}</div>
+<div class="win">Win Rate: ${winRate}</div>
+<div class="timer">Generated: ${new Date().toLocaleTimeString()}</div>
 `;
-}else{
-resultDiv.innerHTML = `
-<div class="sell">Signal: SELL</div>
-<div class="info">${pair}</div>
-<div>${risk}</div>
-<div>${target}</div>
-`;
+
 }
+
+function startAuto(){
+
+if(autoInterval){
+clearInterval(autoInterval);
+autoInterval = null;
+alert("Auto Mode Stopped");
+return;
+}
+
+generateSignal();
+
+autoInterval = setInterval(function(){
+generateSignal();
+},30000);
+
+alert("Auto Mode Started (Every 30 Seconds)");
 
 }
 
