@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - PRO</title>
+<title>TS QUOTEX AI - RISK ENGINE PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
@@ -24,7 +24,7 @@ border-radius:15px;
 box-shadow:0 0 15px rgba(0,255,255,0.3);
 }
 button{
-padding:10px 15px;
+padding:8px 12px;
 border:none;
 border-radius:8px;
 background:#00bfff;
@@ -37,112 +37,107 @@ border-radius:8px;
 border:none;
 margin:5px;
 }
-#signal{
-margin-top:10px;
-font-size:18px;
+.lock{
+color:red;
 font-weight:bold;
-}
-.loading{
-animation:blink 1s infinite;
-}
-@keyframes blink{
-50%{opacity:0.3;}
-}
-table{
-width:100%;
-margin-top:10px;
-font-size:12px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">TS QUOTEX AI - STRATEGY ENGINE</div>
+<div class="header">TS QUOTEX AI - RISK ENGINE PRO</div>
 
 <div class="card">
-<div id="clock"></div>
+<input type="number" id="capital" placeholder="Enter Capital">
+<button onclick="setCapital()">Set Capital</button>
 
-<select id="pair">
-<option>USD BRL OTC</option>
-<option>EUR USD</option>
-<option>GBP USD</option>
-</select>
+<div id="riskInfo"></div>
+</div>
 
-<select id="timeframe">
-<option>1 Minute</option>
-<option>5 Minute</option>
-</select>
-
-<br>
+<div class="card">
 <button onclick="generateSignal()">Generate Signal</button>
-
 <div id="signal"></div>
 </div>
 
 <div class="card">
-<h3>Signal History</h3>
-<table border="1">
-<tr><th>Time</th><th>Pair</th><th>Signal</th></tr>
-<tbody id="history"></tbody>
-</table>
+<h3>Trade Result</h3>
+<button onclick="markWin()">Win</button>
+<button onclick="markLoss()">Loss</button>
+<div id="stats"></div>
+<div id="lockMsg" class="lock"></div>
 </div>
 
 <script>
 
-function updateClock(){
-document.getElementById("clock").innerHTML =
-"Market Time: " + new Date().toLocaleTimeString();
+let capital=0;
+let riskPerTrade=0;
+let dailyMaxLoss=0;
+let totalPnL=0;
+let wins=0;
+let losses=0;
+let locked=false;
+
+function setCapital(){
+capital=parseFloat(document.getElementById("capital").value);
+if(!capital || capital<=0) return;
+
+riskPerTrade=capital*0.02;
+dailyMaxLoss=capital*0.06;
+
+document.getElementById("riskInfo").innerHTML=
+"2% Risk Per Trade: $"+riskPerTrade.toFixed(2)+
+"<br>Daily Max Loss (6%): $"+dailyMaxLoss.toFixed(2);
 }
-setInterval(updateClock,1000);
 
 function generateSignal(){
-
-let s=document.getElementById("signal");
-s.innerHTML="Connecting to Strategy Engine...";
-s.classList.add("loading");
-
-setTimeout(()=>{
-s.innerHTML="Analyzing Market...";
-},1500);
-
-setTimeout(()=>{
+if(locked){
+document.getElementById("signal").innerHTML="Trading Locked For Today";
+return;
+}
 
 fetch("/api/signal")
 .then(res=>res.json())
 .then(data=>{
-
-s.classList.remove("loading");
-
-s.innerHTML =
-data.signal +
-"<br>RSI: " + data.rsi +
-"<br>EMA9: " + data.emaFast +
-"<br>EMA21: " + data.emaSlow +
-"<br>Strategy: " + data.strategy;
-
-addHistory(data.signal);
-
+document.getElementById("signal").innerHTML=
+data.signal+
+"<br>RSI: "+data.rsi+
+"<br>EMA9: "+data.emaFast+
+"<br>EMA21: "+data.emaSlow;
 });
-
-},3000);
-
 }
 
-function addHistory(sig){
+function markWin(){
+if(locked) return;
 
-let table=document.getElementById("history");
+totalPnL+=riskPerTrade;
+wins++;
+updateStats();
+}
 
-let row="<tr><td>" +
-new Date().toLocaleTimeString() +
-"</td><td>" +
-document.getElementById("pair").value +
-"</td><td>" +
-sig +
-"</td></tr>";
+function markLoss(){
+if(locked) return;
 
-table.innerHTML += row;
+totalPnL-=riskPerTrade;
+losses++;
 
+if(Math.abs(totalPnL)>=dailyMaxLoss){
+locked=true;
+document.getElementById("lockMsg").innerHTML="Daily Loss Limit Hit. Trading Locked.";
+}
+
+updateStats();
+}
+
+function updateStats(){
+let totalTrades=wins+losses;
+let winrate= totalTrades>0 ? (wins/totalTrades*100).toFixed(1):0;
+
+document.getElementById("stats").innerHTML=
+"Total PnL: $"+totalPnL.toFixed(2)+
+"<br>Wins: "+wins+
+"<br>Losses: "+losses+
+"<br>Winrate: "+winrate+"%";
 }
 
 </script>
