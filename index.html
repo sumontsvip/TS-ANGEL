@@ -1,156 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - ANALYTICS DASHBOARD</title>
+<title>TS QUOTEX AI - SIGNAL PANEL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{background:#0a0f1c;color:white;font-family:Arial;text-align:center;margin:0;}
 .header{background:linear-gradient(90deg,#00f2ff,#0066ff);padding:15px;font-weight:bold;}
 .card{background:rgba(255,255,255,0.05);margin:15px;padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(0,255,255,0.3);}
-button{padding:8px 12px;border:none;border-radius:8px;background:#00bfff;color:white;margin:5px;}
-input,select{padding:8px;border-radius:8px;border:none;margin:5px;}
-canvas{background:#111;border-radius:10px;}
+button{padding:10px 15px;border:none;border-radius:8px;background:#00bfff;color:white;margin:5px;font-weight:bold;}
+select{padding:8px;border-radius:8px;border:none;margin:5px;}
+.signal{font-size:22px;font-weight:bold;margin-top:15px;}
+.call{color:#00ff88;}
+.put{color:#ff4d4d;}
+.wait{color:#cccccc;}
 </style>
 </head>
 <body>
 
-<div class="header">TS QUOTEX AI - PERFORMANCE ANALYTICS</div>
+<div class="header">TS QUOTEX AI - OTC SIGNAL SYSTEM</div>
 
 <div class="card">
-<input type="number" id="capital" placeholder="Capital">
-<button onclick="setCapital()">Set Capital</button>
-<div id="riskInfo"></div>
-</div>
-
-<div class="card">
-<h3>Add Trade</h3>
-<select id="result">
-<option value="win">Win</option>
-<option value="loss">Loss</option>
+<h3>Select Market</h3>
+<select id="market">
+<option>EURUSD OTC</option>
+<option>GBPUSD OTC</option>
+<option>USDJPY OTC</option>
+<option>XAUUSD OTC</option>
+<option>BTCUSD OTC</option>
 </select>
-<input type="number" id="rr" placeholder="R:R (e.g. 2)">
-<button onclick="addTrade()">Add Trade</button>
-</div>
 
-<div class="card">
-<h3>Performance Stats</h3>
-<div id="stats"></div>
-</div>
+<select id="timeframe">
+<option value="1">1 Minute</option>
+<option value="5">5 Minutes</option>
+<option value="15">15 Minutes</option>
+</select>
 
-<div class="card">
-<h3>Equity Curve</h3>
-<canvas id="equityChart"></canvas>
+<select id="expiry">
+<option value="1">1 Min Expiry</option>
+<option value="2">2 Min Expiry</option>
+<option value="5">5 Min Expiry</option>
+</select>
+
+<br>
+<button onclick="generateSignal()">Generate Signal</button>
+
+<div id="signalBox" class="signal wait">WAITING...</div>
+<div id="details"></div>
 </div>
 
 <script>
 
-let capital=0;
-let riskPerTrade=0;
-let trades=[];
-let chart;
+function generateSignal(){
 
-function saveData(){
-localStorage.setItem("journal",JSON.stringify(trades));
+let market=document.getElementById("market").value;
+let tf=document.getElementById("timeframe").value;
+let expiry=document.getElementById("expiry").value;
+
+let rsi = Math.floor(Math.random()*100);  // demo RSI
+let trend = Math.random();
+
+let signal="";
+let className="signal ";
+
+if(rsi<30 && trend>0.5){
+signal="CALL";
+className+="call";
+}
+else if(rsi>70 && trend<0.5){
+signal="PUT";
+className+="put";
+}
+else{
+signal="NO TRADE";
+className+="wait";
 }
 
-function loadData(){
-let data=localStorage.getItem("journal");
-if(data){
-trades=JSON.parse(data);
-render();
-}
-}
-loadData();
+document.getElementById("signalBox").className=className;
+document.getElementById("signalBox").innerHTML=signal;
 
-function setCapital(){
-capital=parseFloat(document.getElementById("capital").value);
-if(!capital) return;
+document.getElementById("details").innerHTML=
+"Market: "+market+
+"<br>Timeframe: "+tf+"m"+
+"<br>Expiry: "+expiry+"m"+
+"<br>RSI: "+rsi;
 
-riskPerTrade=capital*0.02;
-
-document.getElementById("riskInfo").innerHTML=
-"2% Risk Per Trade: $"+riskPerTrade.toFixed(2);
-}
-
-function addTrade(){
-
-let result=document.getElementById("result").value;
-let rr=parseFloat(document.getElementById("rr").value);
-if(!riskPerTrade || !rr) return;
-
-let pnl= result==="win" ? riskPerTrade*rr : -riskPerTrade;
-
-trades.push({result,rr,pnl});
-saveData();
-render();
-}
-
-function render(){
-
-let equity=capital;
-let equityData=[equity];
-let wins=0;
-let totalR=0;
-let maxEquity=equity;
-let maxDD=0;
-
-trades.forEach(t=>{
-equity+=t.pnl;
-equityData.push(equity);
-
-if(t.result==="win") wins++;
-totalR+= (t.pnl/riskPerTrade);
-
-if(equity>maxEquity) maxEquity=equity;
-
-let dd=(maxEquity-equity);
-if(dd>maxDD) maxDD=dd;
-});
-
-let totalTrades=trades.length;
-let winrate= totalTrades? (wins/totalTrades*100).toFixed(1):0;
-let avgR= totalTrades? (totalR/totalTrades).toFixed(2):0;
-
-let expectancy = (winrate/100*avgR - (1-winrate/100)).toFixed(2);
-
-document.getElementById("stats").innerHTML=
-"Total Trades: "+totalTrades+
-"<br>Winrate: "+winrate+"%"+
-"<br>Average R: "+avgR+
-"<br>Expectancy (R): "+expectancy+
-"<br>Max Drawdown: $"+maxDD.toFixed(2)+
-"<br>Current Equity: $"+equity.toFixed(2);
-
-drawChart(equityData);
-}
-
-function drawChart(data){
-
-if(chart) chart.destroy();
-
-const ctx=document.getElementById("equityChart").getContext("2d");
-
-chart=new Chart(ctx,{
-type:"line",
-data:{
-labels:data.map((_,i)=>i),
-datasets:[{
-label:"Equity Curve",
-data:data,
-borderColor:"#00f2ff",
-fill:false
-}]
-},
-options:{
-responsive:true,
-plugins:{legend:{labels:{color:"white"}}},
-scales:{
-x:{ticks:{color:"white"}},
-y:{ticks:{color:"white"}}
-}
-}
-});
 }
 
 </script>
