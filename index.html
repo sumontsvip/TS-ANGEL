@@ -1,50 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS Angel AI - Pro Signal Panel</title>
+<title>TS QUOTEX AI - PRO ULTRA</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
-background:#0a0a0a;
+background:#050505;
 color:white;
 font-family:Arial;
 text-align:center;
 }
-h2{color:cyan;}
+h2{color:#00ffff;}
 
-select,button{
-padding:10px;
-margin:8px;
+select,input,button{
+padding:8px;
+margin:6px;
 border-radius:6px;
 border:none;
 }
 
 button{
-background:#007bff;
+background:#00aaff;
 color:white;
 cursor:pointer;
 }
 
-.signal-box{
-margin-top:20px;
+.box{
+margin-top:15px;
 padding:15px;
-border-radius:8px;
 background:#111;
+border-radius:10px;
 }
 
 .buy{color:lime;font-size:22px;}
 .sell{color:red;font-size:22px;}
 .info{color:cyan;}
 .win{color:gold;}
-.timer{color:orange;}
+
+table{
+width:100%;
+margin-top:15px;
+border-collapse:collapse;
+}
+th,td{
+border:1px solid #333;
+padding:6px;
+font-size:12px;
+}
+th{background:#222;}
 </style>
 </head>
 
 <body>
 
-<h2>TS Angel AI - Pro Signal Panel</h2>
+<h2>TS QUOTEX AI - PRO ULTRA</h2>
 
-<label>Choose Pair:</label><br>
 <select id="pair">
 <option>USD BRL OTC</option>
 <option>USD PKR OTC</option>
@@ -53,9 +63,6 @@ background:#111;
 <option>EUR JPY</option>
 </select>
 
-<br>
-
-<label>Select Timeframe:</label><br>
 <select id="timeframe">
 <option>1 Minute</option>
 <option>5 Minute</option>
@@ -63,54 +70,94 @@ background:#111;
 
 <br>
 
-<button onclick="generateSignal()">Generate Signal</button>
-<button onclick="startAuto()">Auto Mode</button>
+<input type="number" id="capital" placeholder="Enter Capital">
 
-<div class="signal-box" id="result"></div>
+<br>
+
+<button onclick="generateSignal()">Generate Signal</button>
+<button onclick="toggleAuto()">Auto Mode</button>
+
+<div class="box" id="result"></div>
+
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Pair</th>
+<th>Signal</th>
+<th>TF</th>
+</tr>
+</thead>
+<tbody id="history">
+</tbody>
+</table>
 
 <script>
 
-let autoInterval = null;
+let autoInterval=null;
+
+function smartDirection(){
+let r = Math.random();
+if(r>0.6) return "BUY";
+if(r<0.4) return "SELL";
+return Math.random()>0.5?"BUY":"SELL";
+}
 
 function generateSignal(){
 
-let pair = document.getElementById("pair").value;
-let timeframe = document.getElementById("timeframe").value;
+let pair=document.getElementById("pair").value;
+let tf=document.getElementById("timeframe").value;
+let capital=parseFloat(document.getElementById("capital").value);
 
-let random = Math.random();
-let direction = random > 0.5 ? "BUY" : "SELL";
+if(!capital){
+alert("Enter Capital First");
+return;
+}
 
-let winRate = (70 + Math.floor(Math.random()*20)) + "%";
+let direction=smartDirection();
 
-let risk = "2% Risk Per Trade";
-let target = "3% Target Profit";
+let riskAmount=(capital*0.02).toFixed(2);
+let targetAmount=(capital*0.03).toFixed(2);
 
-let resultDiv = document.getElementById("result");
+let winRate=(75+Math.floor(Math.random()*15))+"%";
 
-resultDiv.innerHTML = `
+let result=document.getElementById("result");
+
+result.innerHTML=`
 <div class="${direction=="BUY"?"buy":"sell"}">Signal: ${direction}</div>
 <div class="info">${pair}</div>
-<div class="info">Timeframe: ${timeframe}</div>
-<div>${risk}</div>
-<div>${target}</div>
+<div class="info">Timeframe: ${tf}</div>
+<div>Risk (2%): $${riskAmount}</div>
+<div>Target (3%): $${targetAmount}</div>
 <div class="win">Win Rate: ${winRate}</div>
-<div class="timer">Generated: ${new Date().toLocaleTimeString()}</div>
+<div>Time: ${new Date().toLocaleTimeString()}</div>
 `;
+
+let history=document.getElementById("history");
+
+history.innerHTML=`
+<tr>
+<td>${new Date().toLocaleTimeString()}</td>
+<td>${pair}</td>
+<td>${direction}</td>
+<td>${tf}</td>
+</tr>
+` + history.innerHTML;
 
 }
 
-function startAuto(){
+function toggleAuto(){
 
 if(autoInterval){
 clearInterval(autoInterval);
-autoInterval = null;
+autoInterval=null;
 alert("Auto Mode Stopped");
 return;
 }
 
 generateSignal();
 
-autoInterval = setInterval(function(){
+autoInterval=setInterval(function(){
 generateSignal();
 },30000);
 
