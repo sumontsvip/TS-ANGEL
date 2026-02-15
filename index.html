@@ -1,126 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TS Angel Quotex Panel</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0f0f0f;
-      color: #ffffff;
-      padding: 20px;
-      text-align: center;
-    }
-    h2 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: #00f0ff;
-    }
-    select, button {
-      margin-top: 15px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      width: 90%;
-      max-width: 400px;
-      background-color: #1f1f1f;
-      color: #ffffff;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #0056b3;
-      cursor: pointer;
-    }
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-      margin-top: 20px;
-      border-radius: 12px;
-    }
-    .time-display {
-      margin-top: 15px;
-      font-size: 18px;
-      color: #ffcc00;
-    }
-    #signalBox {
-      margin-top: 20px;
-      font-size: 22px;
-      color: #00ff7f;
-      background-color: #1c1c1c;
-      padding: 15px;
-      border-radius: 10px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-      box-shadow: 0 0 15px #00ff7f66;
-    }
-  </style>
+<title>TS Angel - Live Quotex Signal Panel</title>
+<style>
+body{
+background:#000;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+select,button{
+padding:10px;
+margin:10px;
+border-radius:6px;
+}
+.signal{
+font-size:22px;
+margin-top:20px;
+}
+.buy{color:lime;}
+.sell{color:red;}
+.info{color:cyan;}
+</style>
 </head>
+
 <body>
-  <h2>TS Angel - Live Quotex Signal Panel</h2>
 
-  <label for="pairSelect">Choose Pair:</label>
-  <select id="pairSelect">
-    <option value="EURUSD">EURUSD</option>
-    <option value="GBPUSD">GBPUSD</option>
-    <option value="USDJPY">USDJPY</option>
-    <option value="AUDUSD">AUDUSD</option>
-    <option value="NZDUSD">NZDUSD</option>
-    <option value="USDCHF">USDCHF</option>
-    <option value="USDCAD">USDCAD</option>
-  </select>
+<h2>TS Angel - Live Quotex Signal Panel</h2>
 
-  <div class="time-display" id="timeDisplay"></div>
+<label>Choose Pair:</label>
+<br>
+<select id="pair">
+<option>USD BRL OTC</option>
+<option>USD PKR OTC</option>
+<option>EUR USD</option>
+<option>EUR GBP</option>
+<option>EUR JPY</option>
+</select>
 
-  <button onclick="generateSignal()">🔮 Generate Signal</button>
+<br>
 
-  <div id="signalBox"></div>
+<button onclick="generateSignal()">Generate Signal</button>
 
-  <iframe id="tvChart" src="https://s.tradingview.com/widgetembed/?symbol=FX:EURUSD&interval=1&theme=dark&style=1&locale=en"></iframe>
+<div class="signal" id="result"></div>
 
-  <script>
-    const pairSelect = document.getElementById("pairSelect");
-    const tvChart = document.getElementById("tvChart");
-    const signalBox = document.getElementById("signalBox");
-    const timeDisplay = document.getElementById("timeDisplay");
+<script>
 
-    pairSelect.addEventListener("change", function () {
-      const symbol = this.value;
-      tvChart.src = `https://s.tradingview.com/widgetembed/?symbol=FX:${symbol}&interval=1&theme=dark&style=1&locale=en`;
-    });
+function generateSignal(){
 
-    function generateSignal() {
-  const day = new Date().getDay(); // 0 = Sunday, 6 = Saturday
-  if (day === 0 || day === 6) {
-    signalBox.innerHTML = "⚠️ Market is closed. No signals available today.";
-    return;
-  }
+let pair = document.getElementById("pair").value;
 
-  const pair = pairSelect.value;
-  const direction = Math.random() > 0.5 ? "BUY" : "SELL";
-  const now = new Date();
-  const time = now.toLocaleTimeString("en-IN", { hour12: true });
+let random = Math.random();
 
-  signalBox.innerHTML = `📈 Signal for <b>${pair}</b>: <span style='color:yellow'>${direction}</span> at <span style='color:#ffcc00'>${time}</span>`;
+let direction = random > 0.5 ? "BUY" : "SELL";
+
+let risk = "2% Risk Per Trade";
+let target = "3% Target Profit";
+
+let resultDiv = document.getElementById("result");
+
+if(direction == "BUY"){
+resultDiv.innerHTML = `
+<div class="buy">Signal: BUY</div>
+<div class="info">${pair}</div>
+<div>${risk}</div>
+<div>${target}</div>
+`;
+}else{
+resultDiv.innerHTML = `
+<div class="sell">Signal: SELL</div>
+<div class="info">${pair}</div>
+<div>${risk}</div>
+<div>${target}</div>
+`;
 }
 
+}
 
-    function updateTime() {
-      const now = new Date();
-      const time = now.toLocaleTimeString("en-IN", { hour12: true });
-      timeDisplay.textContent = `Current Indian Time: ${time}`;
-    }
+</script>
 
-    setInterval(updateTime, 1000);
-    updateTime();
-  </script>
 </body>
 </html>
