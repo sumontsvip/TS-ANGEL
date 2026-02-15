@@ -1,142 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - RISK ENGINE PRO</title>
+<title>TS QUOTEX AI - PRO JOURNAL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{
-background:#0a0f1c;
-color:white;
-font-family:Arial;
-text-align:center;
-margin:0;
-}
-.header{
-background:linear-gradient(90deg,#00f2ff,#0066ff);
-padding:15px;
-font-weight:bold;
-}
-.card{
-background:rgba(255,255,255,0.05);
-margin:15px;
-padding:15px;
-border-radius:15px;
-box-shadow:0 0 15px rgba(0,255,255,0.3);
-}
-button{
-padding:8px 12px;
-border:none;
-border-radius:8px;
-background:#00bfff;
-color:white;
-margin:5px;
-}
-input,select{
-padding:8px;
-border-radius:8px;
-border:none;
-margin:5px;
-}
-.lock{
-color:red;
-font-weight:bold;
-}
+body{background:#0a0f1c;color:white;font-family:Arial;text-align:center;margin:0;}
+.header{background:linear-gradient(90deg,#00f2ff,#0066ff);padding:15px;font-weight:bold;}
+.card{background:rgba(255,255,255,0.05);margin:15px;padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(0,255,255,0.3);}
+button{padding:8px 12px;border:none;border-radius:8px;background:#00bfff;color:white;margin:5px;}
+input{padding:8px;border-radius:8px;border:none;margin:5px;}
+table{width:100%;margin-top:10px;font-size:12px;}
+.lock{color:red;font-weight:bold;}
 </style>
 </head>
-
 <body>
 
-<div class="header">TS QUOTEX AI - RISK ENGINE PRO</div>
+<div class="header">TS QUOTEX AI - PRO JOURNAL SYSTEM</div>
 
 <div class="card">
-<input type="number" id="capital" placeholder="Enter Capital">
+<input type="number" id="capital" placeholder="Capital">
 <button onclick="setCapital()">Set Capital</button>
-
 <div id="riskInfo"></div>
 </div>
 
 <div class="card">
-<button onclick="generateSignal()">Generate Signal</button>
-<div id="signal"></div>
+<h3>Add Trade</h3>
+<select id="result">
+<option value="win">Win</option>
+<option value="loss">Loss</option>
+</select>
+<input type="number" id="rr" placeholder="Risk:Reward (e.g. 2)">
+<button onclick="addTrade()">Add</button>
 </div>
 
 <div class="card">
-<h3>Trade Result</h3>
-<button onclick="markWin()">Win</button>
-<button onclick="markLoss()">Loss</button>
+<h3>Performance Stats</h3>
 <div id="stats"></div>
-<div id="lockMsg" class="lock"></div>
+</div>
+
+<div class="card">
+<h3>Trade History</h3>
+<table border="1">
+<tr><th>#</th><th>Result</th><th>R:R</th><th>PnL</th></tr>
+<tbody id="history"></tbody>
+</table>
 </div>
 
 <script>
 
 let capital=0;
 let riskPerTrade=0;
-let dailyMaxLoss=0;
-let totalPnL=0;
-let wins=0;
-let losses=0;
-let locked=false;
+let trades=[];
+
+function saveData(){
+localStorage.setItem("journal",JSON.stringify(trades));
+}
+
+function loadData(){
+let data=localStorage.getItem("journal");
+if(data){
+trades=JSON.parse(data);
+render();
+}
+}
+loadData();
 
 function setCapital(){
 capital=parseFloat(document.getElementById("capital").value);
-if(!capital || capital<=0) return;
+if(!capital) return;
 
 riskPerTrade=capital*0.02;
-dailyMaxLoss=capital*0.06;
 
 document.getElementById("riskInfo").innerHTML=
-"2% Risk Per Trade: $"+riskPerTrade.toFixed(2)+
-"<br>Daily Max Loss (6%): $"+dailyMaxLoss.toFixed(2);
+"2% Risk Per Trade: $"+riskPerTrade.toFixed(2);
 }
 
-function generateSignal(){
-if(locked){
-document.getElementById("signal").innerHTML="Trading Locked For Today";
-return;
+function addTrade(){
+
+let result=document.getElementById("result").value;
+let rr=parseFloat(document.getElementById("rr").value);
+if(!riskPerTrade || !rr) return;
+
+let pnl=0;
+
+if(result==="win"){
+pnl=riskPerTrade*rr;
+}else{
+pnl=-riskPerTrade;
 }
 
-fetch("/api/signal")
-.then(res=>res.json())
-.then(data=>{
-document.getElementById("signal").innerHTML=
-data.signal+
-"<br>RSI: "+data.rsi+
-"<br>EMA9: "+data.emaFast+
-"<br>EMA21: "+data.emaSlow;
+trades.push({result,rr,pnl});
+saveData();
+render();
+}
+
+function render(){
+
+let history=document.getElementById("history");
+history.innerHTML="";
+
+let totalPnL=0;
+let wins=0;
+
+trades.forEach((t,i)=>{
+totalPnL+=t.pnl;
+if(t.result==="win") wins++;
+
+history.innerHTML+=
+"<tr><td>"+(i+1)+"</td><td>"+t.result+"</td><td>"+t.rr+"</td><td>"+t.pnl.toFixed(2)+"</td></tr>";
 });
-}
 
-function markWin(){
-if(locked) return;
-
-totalPnL+=riskPerTrade;
-wins++;
-updateStats();
-}
-
-function markLoss(){
-if(locked) return;
-
-totalPnL-=riskPerTrade;
-losses++;
-
-if(Math.abs(totalPnL)>=dailyMaxLoss){
-locked=true;
-document.getElementById("lockMsg").innerHTML="Daily Loss Limit Hit. Trading Locked.";
-}
-
-updateStats();
-}
-
-function updateStats(){
-let totalTrades=wins+losses;
-let winrate= totalTrades>0 ? (wins/totalTrades*100).toFixed(1):0;
+let totalTrades=trades.length;
+let winrate= totalTrades? (wins/totalTrades*100).toFixed(1):0;
 
 document.getElementById("stats").innerHTML=
-"Total PnL: $"+totalPnL.toFixed(2)+
-"<br>Wins: "+wins+
-"<br>Losses: "+losses+
+"Total Trades: "+totalTrades+
+"<br>Total PnL: $"+totalPnL.toFixed(2)+
 "<br>Winrate: "+winrate+"%";
 }
 
