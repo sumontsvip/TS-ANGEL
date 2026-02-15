@@ -1,59 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - PRO ULTRA</title>
+<title>TS QUOTEX AI - ULTRA MAX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+
 body{
-background:#050505;
-color:white;
+background:#0f0f0f;
 font-family:Arial;
+color:white;
 text-align:center;
 }
-h2{color:#00ffff;}
+
+h2{
+background:#0088cc;
+padding:10px;
+border-radius:8px;
+}
 
 select,input,button{
 padding:8px;
-margin:6px;
+margin:5px;
 border-radius:6px;
 border:none;
 }
 
 button{
-background:#00aaff;
+background:#0088cc;
 color:white;
 cursor:pointer;
 }
 
 .box{
-margin-top:15px;
+background:#1a1a1a;
 padding:15px;
-background:#111;
+margin-top:10px;
 border-radius:10px;
 }
 
 .buy{color:lime;font-size:22px;}
 .sell{color:red;font-size:22px;}
-.info{color:cyan;}
 .win{color:gold;}
+.clock{color:cyan;}
 
 table{
 width:100%;
-margin-top:15px;
+margin-top:10px;
 border-collapse:collapse;
-}
-th,td{
-border:1px solid #333;
-padding:6px;
 font-size:12px;
 }
-th{background:#222;}
+
+th,td{
+border:1px solid #333;
+padding:5px;
+}
+
+.loading{
+color:orange;
+font-weight:bold;
+}
+
 </style>
 </head>
 
 <body>
 
-<h2>TS QUOTEX AI - PRO ULTRA</h2>
+<h2>TS QUOTEX AI - ULTRA MAX</h2>
+
+<div class="clock" id="clock"></div>
 
 <select id="pair">
 <option>USD BRL OTC</option>
@@ -63,7 +77,7 @@ th{background:#222;}
 <option>EUR JPY</option>
 </select>
 
-<select id="timeframe">
+<select id="tf">
 <option>1 Minute</option>
 <option>5 Minute</option>
 </select>
@@ -79,6 +93,19 @@ th{background:#222;}
 
 <div class="box" id="result"></div>
 
+<h3>Daily Profit Tracker</h3>
+<div class="box">
+Total Profit Today: $<span id="dailyProfit">0</span>
+</div>
+
+<h3>Compounding Calculator</h3>
+<div class="box">
+<input type="number" id="compoundDays" placeholder="Days">
+<button onclick="calculateCompound()">Calculate</button>
+<div id="compoundResult"></div>
+</div>
+
+<h3>Signal History</h3>
 <table>
 <thead>
 <tr>
@@ -88,16 +115,23 @@ th{background:#222;}
 <th>TF</th>
 </tr>
 </thead>
-<tbody id="history">
-</tbody>
+<tbody id="history"></tbody>
 </table>
 
 <script>
 
 let autoInterval=null;
+let dailyProfit=0;
+
+function updateClock(){
+let now=new Date();
+document.getElementById("clock").innerHTML=
+"Market Time: "+now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
 
 function smartDirection(){
-let r = Math.random();
+let r=Math.random();
 if(r>0.6) return "BUY";
 if(r<0.4) return "SELL";
 return Math.random()>0.5?"BUY":"SELL";
@@ -106,7 +140,7 @@ return Math.random()>0.5?"BUY":"SELL";
 function generateSignal(){
 
 let pair=document.getElementById("pair").value;
-let tf=document.getElementById("timeframe").value;
+let tf=document.getElementById("tf").value;
 let capital=parseFloat(document.getElementById("capital").value);
 
 if(!capital){
@@ -114,27 +148,31 @@ alert("Enter Capital First");
 return;
 }
 
+let result=document.getElementById("result");
+
+result.innerHTML="<div class='loading'>AI Analyzing Market...</div>";
+
+setTimeout(function(){
+
 let direction=smartDirection();
-
-let riskAmount=(capital*0.02).toFixed(2);
-let targetAmount=(capital*0.03).toFixed(2);
-
+let risk=(capital*0.02).toFixed(2);
+let target=(capital*0.03).toFixed(2);
 let winRate=(75+Math.floor(Math.random()*15))+"%";
 
-let result=document.getElementById("result");
+dailyProfit+=parseFloat(target);
+document.getElementById("dailyProfit").innerHTML=dailyProfit.toFixed(2);
 
 result.innerHTML=`
 <div class="${direction=="BUY"?"buy":"sell"}">Signal: ${direction}</div>
-<div class="info">${pair}</div>
-<div class="info">Timeframe: ${tf}</div>
-<div>Risk (2%): $${riskAmount}</div>
-<div>Target (3%): $${targetAmount}</div>
+<div>${pair}</div>
+<div>${tf}</div>
+<div>Risk (2%): $${risk}</div>
+<div>Target (3%): $${target}</div>
 <div class="win">Win Rate: ${winRate}</div>
-<div>Time: ${new Date().toLocaleTimeString()}</div>
+<div>${new Date().toLocaleTimeString()}</div>
 `;
 
 let history=document.getElementById("history");
-
 history.innerHTML=`
 <tr>
 <td>${new Date().toLocaleTimeString()}</td>
@@ -142,7 +180,9 @@ history.innerHTML=`
 <td>${direction}</td>
 <td>${tf}</td>
 </tr>
-` + history.innerHTML;
+`+history.innerHTML;
+
+},2000);
 
 }
 
@@ -161,7 +201,28 @@ autoInterval=setInterval(function(){
 generateSignal();
 },30000);
 
-alert("Auto Mode Started (Every 30 Seconds)");
+alert("Auto Mode Started");
+
+}
+
+function calculateCompound(){
+
+let capital=parseFloat(document.getElementById("capital").value);
+let days=parseInt(document.getElementById("compoundDays").value);
+
+if(!capital || !days){
+alert("Enter Capital and Days");
+return;
+}
+
+let result=capital;
+
+for(let i=0;i<days;i++){
+result+=result*0.03;
+}
+
+document.getElementById("compoundResult").innerHTML=
+"After "+days+" Days: $"+result.toFixed(2);
 
 }
 
