@@ -147,12 +147,16 @@ setTimeout(()=>{
 fetch("/api/signal")
 .then(res=>res.json())
 .then(data=>{
-s.classList.remove("loading");
-s.innerHTML = data.signal + 
-"<br>RSI: " + data.rsi +
-"<br>EMA9: " + data.emaFast +
-"<br>EMA21: " + data.emaSlow;
+    s.classList.remove("loading");
 
+    s.innerHTML = data.signal +
+    "<br>RSI: " + data.rsi +
+    "<br>EMA9: " + data.emaFast +
+    "<br>EMA21: " + data.emaSlow;
+
+    addHistory(data.signal);
+
+});
 function addHistory(sig){
 let table=document.getElementById("history");
 let row="<tr><td>"+new Date().toLocaleTimeString()+"</td><td>"+document.getElementById("pair").value+"</td><td>"+sig+"</td></tr>";
