@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - PRO JOURNAL</title>
+<title>TS QUOTEX AI - ANALYTICS DASHBOARD</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{background:#0a0f1c;color:white;font-family:Arial;text-align:center;margin:0;}
 .header{background:linear-gradient(90deg,#00f2ff,#0066ff);padding:15px;font-weight:bold;}
 .card{background:rgba(255,255,255,0.05);margin:15px;padding:15px;border-radius:15px;box-shadow:0 0 15px rgba(0,255,255,0.3);}
 button{padding:8px 12px;border:none;border-radius:8px;background:#00bfff;color:white;margin:5px;}
-input{padding:8px;border-radius:8px;border:none;margin:5px;}
-table{width:100%;margin-top:10px;font-size:12px;}
-.lock{color:red;font-weight:bold;}
+input,select{padding:8px;border-radius:8px;border:none;margin:5px;}
+canvas{background:#111;border-radius:10px;}
 </style>
 </head>
 <body>
 
-<div class="header">TS QUOTEX AI - PRO JOURNAL SYSTEM</div>
+<div class="header">TS QUOTEX AI - PERFORMANCE ANALYTICS</div>
 
 <div class="card">
 <input type="number" id="capital" placeholder="Capital">
@@ -29,8 +29,8 @@ table{width:100%;margin-top:10px;font-size:12px;}
 <option value="win">Win</option>
 <option value="loss">Loss</option>
 </select>
-<input type="number" id="rr" placeholder="Risk:Reward (e.g. 2)">
-<button onclick="addTrade()">Add</button>
+<input type="number" id="rr" placeholder="R:R (e.g. 2)">
+<button onclick="addTrade()">Add Trade</button>
 </div>
 
 <div class="card">
@@ -39,11 +39,8 @@ table{width:100%;margin-top:10px;font-size:12px;}
 </div>
 
 <div class="card">
-<h3>Trade History</h3>
-<table border="1">
-<tr><th>#</th><th>Result</th><th>R:R</th><th>PnL</th></tr>
-<tbody id="history"></tbody>
-</table>
+<h3>Equity Curve</h3>
+<canvas id="equityChart"></canvas>
 </div>
 
 <script>
@@ -51,6 +48,7 @@ table{width:100%;margin-top:10px;font-size:12px;}
 let capital=0;
 let riskPerTrade=0;
 let trades=[];
+let chart;
 
 function saveData(){
 localStorage.setItem("journal",JSON.stringify(trades));
@@ -81,13 +79,7 @@ let result=document.getElementById("result").value;
 let rr=parseFloat(document.getElementById("rr").value);
 if(!riskPerTrade || !rr) return;
 
-let pnl=0;
-
-if(result==="win"){
-pnl=riskPerTrade*rr;
-}else{
-pnl=-riskPerTrade;
-}
+let pnl= result==="win" ? riskPerTrade*rr : -riskPerTrade;
 
 trades.push({result,rr,pnl});
 saveData();
@@ -96,27 +88,69 @@ render();
 
 function render(){
 
-let history=document.getElementById("history");
-history.innerHTML="";
-
-let totalPnL=0;
+let equity=capital;
+let equityData=[equity];
 let wins=0;
+let totalR=0;
+let maxEquity=equity;
+let maxDD=0;
 
-trades.forEach((t,i)=>{
-totalPnL+=t.pnl;
+trades.forEach(t=>{
+equity+=t.pnl;
+equityData.push(equity);
+
 if(t.result==="win") wins++;
+totalR+= (t.pnl/riskPerTrade);
 
-history.innerHTML+=
-"<tr><td>"+(i+1)+"</td><td>"+t.result+"</td><td>"+t.rr+"</td><td>"+t.pnl.toFixed(2)+"</td></tr>";
+if(equity>maxEquity) maxEquity=equity;
+
+let dd=(maxEquity-equity);
+if(dd>maxDD) maxDD=dd;
 });
 
 let totalTrades=trades.length;
 let winrate= totalTrades? (wins/totalTrades*100).toFixed(1):0;
+let avgR= totalTrades? (totalR/totalTrades).toFixed(2):0;
+
+let expectancy = (winrate/100*avgR - (1-winrate/100)).toFixed(2);
 
 document.getElementById("stats").innerHTML=
 "Total Trades: "+totalTrades+
-"<br>Total PnL: $"+totalPnL.toFixed(2)+
-"<br>Winrate: "+winrate+"%";
+"<br>Winrate: "+winrate+"%"+
+"<br>Average R: "+avgR+
+"<br>Expectancy (R): "+expectancy+
+"<br>Max Drawdown: $"+maxDD.toFixed(2)+
+"<br>Current Equity: $"+equity.toFixed(2);
+
+drawChart(equityData);
+}
+
+function drawChart(data){
+
+if(chart) chart.destroy();
+
+const ctx=document.getElementById("equityChart").getContext("2d");
+
+chart=new Chart(ctx,{
+type:"line",
+data:{
+labels:data.map((_,i)=>i),
+datasets:[{
+label:"Equity Curve",
+data:data,
+borderColor:"#00f2ff",
+fill:false
+}]
+},
+options:{
+responsive:true,
+plugins:{legend:{labels:{color:"white"}}},
+scales:{
+x:{ticks:{color:"white"}},
+y:{ticks:{color:"white"}}
+}
+}
+});
 }
 
 </script>
