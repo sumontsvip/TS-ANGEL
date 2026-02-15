@@ -148,13 +148,10 @@ fetch("/api/signal")
 .then(res=>res.json())
 .then(data=>{
 s.classList.remove("loading");
-s.innerHTML=data.signal;
-addHistory(data.signal);
-profit+=5;
-document.getElementById("profit").innerText=profit;
-});
-},3000);
-}
+s.innerHTML = data.signal + 
+"<br>RSI: " + data.rsi +
+"<br>EMA9: " + data.emaFast +
+"<br>EMA21: " + data.emaSlow;
 
 function addHistory(sig){
 let table=document.getElementById("history");
