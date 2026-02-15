@@ -1,132 +1,197 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>TS QUOTEX AI - DOMINATION</title>
+<title>TS QUOTEX AI - ULTRA MAX PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-
 body{
-background:linear-gradient(135deg,#0f0f0f,#000000);
+background:#0a0f1c;
 color:white;
 font-family:Arial;
 text-align:center;
+margin:0;
 }
-
-h1{
-color:#00ffff;
-text-shadow:0 0 15px cyan;
+.header{
+background:linear-gradient(90deg,#00f2ff,#0066ff);
+padding:15px;
+font-weight:bold;
+font-size:18px;
+box-shadow:0 0 20px #00f2ff;
 }
-
 .card{
 background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-border:1px solid rgba(255,255,255,0.1);
-padding:20px;
 margin:15px;
+padding:15px;
 border-radius:15px;
-box-shadow:0 0 20px rgba(0,255,255,0.2);
+box-shadow:0 0 15px rgba(0,255,255,0.3);
 }
-
 button{
-background:#00ffff;
+padding:10px 15px;
 border:none;
-padding:10px 20px;
-border-radius:8px;
-cursor:pointer;
+border-radius:10px;
+background:#00bfff;
+color:white;
 font-weight:bold;
+margin:5px;
 }
-
-input{
+button:hover{
+background:#0080ff;
+}
+input,select{
 padding:8px;
-border-radius:6px;
+border-radius:8px;
 border:none;
 margin:5px;
 }
-
-.buy{color:lime;font-size:22px;}
-.sell{color:red;font-size:22px;}
-.locked{color:red;font-weight:bold;}
-.premium{color:gold;}
-
+#signal{
+font-size:22px;
+margin-top:10px;
+font-weight:bold;
+}
+.premium{
+background:linear-gradient(90deg,#ff00cc,#3333ff);
+}
+.loading{
+animation:blink 1s infinite;
+}
+@keyframes blink{
+50%{opacity:0.3;}
+}
+table{
+width:100%;
+margin-top:10px;
+font-size:12px;
+}
 </style>
 </head>
+
 <body>
 
-<h1>TS QUOTEX AI - DOMINATION</h1>
+<div class="header">TS QUOTEX AI - ULTRA MAX PRO</div>
 
 <div class="card">
+<div id="clock"></div>
+<select id="pair">
+<option>USD BRL OTC</option>
+<option>EUR USD OTC</option>
+<option>GBP USD OTC</option>
+</select>
+<select id="timeframe">
+<option>1 Minute</option>
+<option>5 Minute</option>
+</select>
+<br>
 <input type="number" id="capital" placeholder="Enter Capital">
-<button onclick="getSignal()">Get Server Signal</button>
-<div id="signalBox"></div>
+<br>
+<button onclick="generateSignal()">Generate Signal</button>
+<button onclick="autoMode()">Auto Mode</button>
+<div id="signal"></div>
+</div>
+
+<div class="card">
+<h3>Daily Profit Tracker</h3>
+<div>Total Profit Today: $<span id="profit">0</span></div>
+</div>
+
+<div class="card">
+<h3>Compounding Calculator</h3>
+<input type="number" id="days" placeholder="Days">
+<button onclick="calculate()">Calculate</button>
+<div id="compoundResult"></div>
 </div>
 
 <div class="card">
 <h3>Withdrawal Tracker</h3>
 <input type="number" id="deposit" placeholder="Deposit">
 <input type="number" id="withdraw" placeholder="Withdraw">
-<button onclick="updateBalance()">Update</button>
-<div>Balance: $<span id="balance">0</span></div>
+<button onclick="updateWithdraw()">Update</button>
+<div>Net Balance: $<span id="net">0</span></div>
 </div>
 
 <div class="card">
-<h3>Premium Zone</h3>
-<input type="password" id="key" placeholder="Enter Premium Key">
-<button onclick="unlock()">Unlock</button>
-<div id="premiumStatus" class="locked">LOCKED</div>
+<h3>Premium Access</h3>
+<input type="text" id="license" placeholder="Enter License Key">
+<button class="premium" onclick="unlock()">Unlock Premium</button>
+<div id="premiumStatus">Status: Free User</div>
+</div>
+
+<div class="card">
+<h3>Signal History</h3>
+<table border="1">
+<tr><th>Time</th><th>Pair</th><th>Signal</th></tr>
+<tbody id="history"></tbody>
+</table>
 </div>
 
 <script>
 
-let balance = 0;
-let premium = false;
+let profit=0;
+let net=0;
+let premium=false;
 
-async function getSignal(){
+function updateClock(){
+document.getElementById("clock").innerHTML="Market Time: "+new Date().toLocaleTimeString();
+}
+setInterval(updateClock,1000);
 
-const res = await fetch('/api/signal');
-const data = await res.json();
+function generateSignal(){
+let s=document.getElementById("signal");
+s.innerHTML="Connecting to AI Server...";
+s.classList.add("loading");
 
-const capital = parseFloat(document.getElementById("capital").value);
-if(!capital){ alert("Enter Capital"); return;}
+setTimeout(()=>{
+s.innerHTML="Analyzing Market...";
+},1500);
 
-const risk = (capital*0.02).toFixed(2);
-const target = (capital*0.03).toFixed(2);
-
-document.getElementById("signalBox").innerHTML = `
-<div class="${data.signal=="BUY"?"buy":"sell"}">
-${data.signal}
-</div>
-<div>${data.pair}</div>
-<div>Win Rate: ${data.winRate}</div>
-<div>Risk: $${risk}</div>
-<div>Target: $${target}</div>
-`;
-
+setTimeout(()=>{
+fetch("/api/signal")
+.then(res=>res.json())
+.then(data=>{
+s.classList.remove("loading");
+s.innerHTML=data.signal;
+addHistory(data.signal);
+profit+=5;
+document.getElementById("profit").innerText=profit;
+});
+},3000);
 }
 
-function updateBalance(){
+function addHistory(sig){
+let table=document.getElementById("history");
+let row="<tr><td>"+new Date().toLocaleTimeString()+"</td><td>"+document.getElementById("pair").value+"</td><td>"+sig+"</td></tr>";
+table.innerHTML+=row;
+}
 
-const dep = parseFloat(document.getElementById("deposit").value)||0;
-const wit = parseFloat(document.getElementById("withdraw").value)||0;
+function calculate(){
+let cap=parseFloat(document.getElementById("capital").value)||0;
+let days=parseInt(document.getElementById("days").value)||0;
+let result=cap*Math.pow(1.1,days);
+document.getElementById("compoundResult").innerHTML="Estimated: $"+result.toFixed(2);
+}
 
-balance += dep;
-balance -= wit;
-
-document.getElementById("balance").innerText = balance.toFixed(2);
-
+function updateWithdraw(){
+let d=parseFloat(document.getElementById("deposit").value)||0;
+let w=parseFloat(document.getElementById("withdraw").value)||0;
+net+=d-w;
+document.getElementById("net").innerText=net;
 }
 
 function unlock(){
-
-const key = document.getElementById("key").value;
-
-if(key === "TS-DOMINATION-2026"){
-premium = true;
-document.getElementById("premiumStatus").innerHTML =
-"<span class='premium'>PREMIUM ACTIVE</span>";
+let key=document.getElementById("license").value;
+if(key==="TS-ULTRA-999"){
+premium=true;
+document.getElementById("premiumStatus").innerHTML="Status: Premium User 😈";
 }else{
-alert("Wrong Key");
+alert("Invalid Key");
+}
 }
 
+function autoMode(){
+if(!premium){
+alert("Premium Only Feature");
+return;
+}
+setInterval(generateSignal,10000);
 }
 
 </script>
